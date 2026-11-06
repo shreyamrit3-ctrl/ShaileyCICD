@@ -55,5 +55,5 @@ stages:
       inputs:
         azureSubscription: 'ShaileyServiceConnection'
         appType: 'webApp'
-        appName: 'ShaileyCICD'
+        appName: 'EmployeeAppService'
         package: '$(System.ArtifactsDirectory)/drop'
