@@ -1,0 +1,59 @@
+trigger:
+- main
+
+pool:
+  name: Default
+
+variables:
+  buildConfiguration: 'Release'
+
+stages:
+
+# STAGE 1 - BUILD
+- stage: Build
+  displayName: 'Build Stage'
+  jobs:
+  - job: BuildJob
+    steps:
+
+    - task: UseDotNet@2
+      inputs:
+        packageType: 'sdk'
+        version: '10.x'
+
+    - script: dotnet restore EmployeeAPI.csproj
+      displayName: 'Restore'
+
+    - script: dotnet build EmployeeAPI.csproj --configuration $(buildConfiguration) --no-restore
+      displayName: 'Build'
+
+    - script: dotnet publish EmployeeAPI.csproj -c Release -o $(Build.ArtifactStagingDirectory)
+      displayName: 'Publish'
+
+    - task: PublishBuildArtifacts@1
+      inputs:
+        PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+        ArtifactName: 'drop'
+        publishLocation: 'Container'
+
+
+# STAGE 2 - DEPLOY
+- stage: Deploy
+  displayName: 'Deploy Stage'
+  jobs:
+  - job: DeployJob
+    steps:
+
+    - task: DownloadBuildArtifacts@1
+      inputs:
+        buildType: 'current'
+        downloadType: 'single'
+        artifactName: 'drop'
+        downloadPath: '$(System.ArtifactsDirectory)'
+
+    - task: AzureWebApp@1
+      inputs:
+        azureSubscription: 'ShaileyServiceConnection'
+        appType: 'webApp'
+        appName: 'ShaileyCICD'
+        package: '$(System.ArtifactsDirectory)/drop'
