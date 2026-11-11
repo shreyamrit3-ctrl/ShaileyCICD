@@ -16,7 +16,7 @@ namespace EmployeeAPI.Controller
             new Employee
             {
                 Id = 1,
-                Name = "Shailey",
+                Name = "Shailey Nayak",
                 Department = "IT",
                 Designation = "Developer",
                 Salary = 50000
